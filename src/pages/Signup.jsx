@@ -1,17 +1,36 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (password !== confirmPassword) {
-      alert("Passwords do not match");
-      return;
+    setError("");
+    setIsLoading(true);
+
+    try {
+      if (password !== confirmPassword) {
+        throw new Error("Passwords do not match");
+      }
+
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log("Signup data:", { email, password });
+
+      // Show success message and navigate
+      alert("Signup successful! Please login.");
+      navigate("/login");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
     }
-    console.log({ email, password });
   };
 
   return (
@@ -47,13 +66,22 @@ export default function Signup() {
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
-        />
+        />        {error && (
+          <div className="mb-4 p-2 text-sm text-red-600 bg-red-50 rounded">
+            {error}
+          </div>
+        )}
 
         <button
           type="submit"
-          className="w-full bg-green-600 text-white p-3 rounded hover:bg-green-700"
+          disabled={isLoading}
+          className={`w-full p-3 rounded text-white ${
+            isLoading
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-green-600 hover:bg-green-700"
+          }`}
         >
-          Sign Up
+          {isLoading ? "Signing up..." : "Sign Up"}
         </button>
       </form>
     </div>
