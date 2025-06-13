@@ -22,22 +22,61 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 
-class CompanySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Company
-        fields = '__all__'
-
-
-class IPOSerializer(serializers.ModelSerializer):
-    company_name = serializers.CharField(
-        source='company.company_name', read_only=True)
-
-    class Meta:
-        model = IPO
-        fields = '__all__'
-
-
 class DocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Document
-        fields = '__all__'
+        fields = ['id', 'rhp_pdf', 'drhp_pdf']
+
+class IPOSerializer(serializers.ModelSerializer):
+    documents = DocumentSerializer(many=True)
+
+    class Meta:
+        model = IPO
+        fields = [
+            'id',
+            'price_band',
+            'open_date',
+            'close_date',
+            'issue_size',
+            'issue_type',
+            'listing_date',
+            'status',
+            'ipo_price',
+            'listing_price',
+            'listing_gain',
+            'current_market_price',
+            'current_return',
+            'documents'
+        ]
+    def update(self, instance, validated_data):
+        documents_data = validated_data.pop('documents', [])
+
+        # Update IPO fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        # Update documents - clear and recreate strategy (simple way)
+        instance.documents.all().delete()
+        for doc_data in documents_data:
+            Document.objects.create(ipo=instance, **doc_data)
+
+        return instance
+class CompanySerializer(serializers.ModelSerializer):
+    ipos = IPOSerializer(many=True)
+
+    class Meta:
+        model = Company
+        fields = ['id', 'company_name', 'company_logo', 'ipos']
+    def create(self, validated_data):
+        ipos_data = validated_data.pop('ipos', [])
+        company = Company.objects.create(**validated_data)
+
+        for ipo_data in ipos_data:
+            documents_data = ipo_data.pop('documents', [])
+            ipo = IPO.objects.create(company=company, **ipo_data)
+
+            for doc_data in documents_data:
+                Document.objects.create(ipo=ipo, **doc_data)
+
+        return company
