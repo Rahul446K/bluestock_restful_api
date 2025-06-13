@@ -48,6 +48,20 @@ class IPOSerializer(serializers.ModelSerializer):
             'current_return',
             'documents'
         ]
+    def update(self, instance, validated_data):
+        documents_data = validated_data.pop('documents', [])
+
+        # Update IPO fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        # Update documents - clear and recreate strategy (simple way)
+        instance.documents.all().delete()
+        for doc_data in documents_data:
+            Document.objects.create(ipo=instance, **doc_data)
+
+        return instance
 class CompanySerializer(serializers.ModelSerializer):
     ipos = IPOSerializer(many=True)
 
