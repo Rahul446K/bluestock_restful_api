@@ -7,9 +7,11 @@ from rest_framework.decorators import action
 from .serializers import RegisterSerializer, CompanySerializer, IPOSerializer, DocumentSerializer
 from django.views.generic import RedirectView
 from .models import Company, IPO, Document
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, OutstandingToken
+from rest_framework.views import APIView
+from .serializers import LoginSerializer
 
 class HomeView(RedirectView):
     pattern_name = 'api:register'
@@ -31,8 +33,9 @@ class RegisterView(generics.CreateAPIView):
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-class LoginView(generics.GenericAPIView):
+class LoginView(APIView):
     permission_classes = [AllowAny]
+    serializer_class = LoginSerializer
 
     def post(self, request,  *args, **kwargs):
         username = request.data.get('username')
@@ -53,17 +56,18 @@ class LoginView(generics.GenericAPIView):
 
         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
-class LogoutView(generics.GenericAPIView):
+class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         try:
             refresh_token = request.data.get("refresh")
             token = RefreshToken(refresh_token)
             token.blacklist()
+            
             return Response({"message": "Successfully logged out"}, status=status.HTTP_205_RESET_CONTENT)
         except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
 
 class CompanyViewSet(viewsets.ModelViewSet):
     queryset = Company.objects.all()

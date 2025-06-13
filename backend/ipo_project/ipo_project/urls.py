@@ -5,13 +5,14 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from ipo_api.views import HomeView
+from ipo_api.views import HomeView, LogoutView
 
 # Define URL patterns
 urlpatterns = [
     path('', HomeView.as_view(), name='home'),
     path('admin/', admin.site.urls),
     path('api/', include(('ipo_api.urls', 'api'), namespace='api')),
+    path('api/logout/', LogoutView.as_view(), name='logout')
 ]
 
 # Add media URL patterns in debug mode
