@@ -27,6 +27,7 @@ class DocumentSerializer(serializers.ModelSerializer):
         model = Document
         fields = ['id', 'rhp_pdf', 'drhp_pdf']
 
+
 class IPOSerializer(serializers.ModelSerializer):
     documents = DocumentSerializer(many=True)
 
@@ -48,6 +49,7 @@ class IPOSerializer(serializers.ModelSerializer):
             'current_return',
             'documents'
         ]
+
     def update(self, instance, validated_data):
         documents_data = validated_data.pop('documents', [])
 
@@ -62,12 +64,15 @@ class IPOSerializer(serializers.ModelSerializer):
             Document.objects.create(ipo=instance, **doc_data)
 
         return instance
+
+
 class CompanySerializer(serializers.ModelSerializer):
     ipos = IPOSerializer(many=True)
 
     class Meta:
         model = Company
         fields = ['id', 'company_name', 'company_logo', 'ipos']
+
     def create(self, validated_data):
         ipos_data = validated_data.pop('ipos', [])
         company = Company.objects.create(**validated_data)
