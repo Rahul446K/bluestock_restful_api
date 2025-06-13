@@ -1,0 +1,11 @@
+import IPOList from "./components/IPOList";
+
+function App() {
+  return (
+    <div>
+      <IPOList />
+    </div>
+  );
+}
+
+export default App;

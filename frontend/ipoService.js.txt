@@ -1,0 +1,22 @@
+export function fetchIPOs() {
+  return [
+    {
+      id: 1,
+      name: "BlueTech Ltd",
+      date: "2025-07-01",
+      price: "$45",
+    },
+    {
+      id: 2,
+      name: "GreenPower Corp",
+      date: "2025-07-10",
+      price: "$60",
+    },
+    {
+      id: 3,
+      name: "SmartFinance Inc",
+      date: "2025-07-15",
+      price: "$75",
+    },
+  ];
+}
