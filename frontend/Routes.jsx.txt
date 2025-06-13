@@ -1,0 +1,14 @@
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import IPODetail from "./components/IPODetail";
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/ipo/:id" element={<IPODetail />} />
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;
