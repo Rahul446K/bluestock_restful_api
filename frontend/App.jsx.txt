@@ -1,9 +1,15 @@
-import IPOList from "./components/IPOList";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 
 function App() {
   return (
-    <div>
-      <IPOList />
+    <div className="flex flex-col min-h-screen">
+      <Navbar />
+      <main className="flex-1 p-6">
+        {/* Add IPO content here later */}
+        <p>Welcome to Bluestock IPO Portal</p>
+      </main>
+      <Footer />
     </div>
   );
 }
